@@ -42,13 +42,13 @@ def value_from_string(string: str) -> str:
                 
 def error(string: str, stop: bool=False) -> None:
     """
-    Print ANSI escape code formatted error strings.
+    Print ANSI escape code formatted error string.
 
     Parameters
     ----------
     string : str
         String to print as error code using ANSI escape sequences.
-    stop : bool
+    stop : bool, optional
         If `True` raises Exception instead of printing with ANSI escape
         sequence.
 
@@ -61,9 +61,9 @@ def error(string: str, stop: bool=False) -> None:
     else:
         print(f'\033[0;31m{string}\033[0m')
 
-def warn(string: str, stop: bool=False) -> None:
+def warn(string: str) -> None:
     """
-    Print ANSI escape code formatted warning strings.
+    Print ANSI escape code formatted warning string.
 
     Parameters
     ----------
@@ -75,6 +75,21 @@ def warn(string: str, stop: bool=False) -> None:
     None
     """
     print(f'\033[0;33m{string}\033[0m')
+
+def success(string: str) -> None:
+    """
+    Print ANSI escape code formatted success string.
+
+    Parameters
+    ----------
+    string : str
+        String to print as warning code using ANSI escape sequences.
+
+    Returns
+    -------
+    None
+    """
+    print(f'\033[0;32m{string}\033[0m')
 
 def conversion_factor(old_unit: str, new_unit: str) -> float:
     """
