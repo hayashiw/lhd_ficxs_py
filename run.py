@@ -1,9 +1,11 @@
 import argparse
-import configparser
+# import configparser
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
+
+from typing import Tuple
 
 from .io import (
     read_data_basic, read_data_ech, read_nbists_from_files, read_config,
@@ -290,7 +292,7 @@ def plot_ficxs_cycle(
     bes_w: list[float, float],
     ficxs_ts_ser_idx: pd.Series,
     config: dict=None
-) -> tuple[plt.figure, plt.axes]:
+) -> Tuple[plt.figure, plt.axes]:
     if config is None: config = read_config()
     data_dir = config['data_dir']
     pqt_dir = config['pqt_dir']

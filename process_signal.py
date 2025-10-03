@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from typing import Tuple
+
 from .io import (
     error, read_geometry, read_fibermaps, read_config,
     read_full_nbists_from_config )
@@ -177,7 +179,7 @@ def ficxs_bes_density(
     off_df: pd.DataFrame,
     fida_w: list[float, float],
     bes_w: list[float, float]
-) -> tuple[float, float]:
+) -> Tuple[float, float]:
     """
     Calculate BES-normalized FICXS signal with error propagation.
 

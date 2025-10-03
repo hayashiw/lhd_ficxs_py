@@ -107,6 +107,8 @@ def conversion_factor(old_unit: str, new_unit: str) -> float:
     factor : float
         Conversion factor: `new_unit` = `old_unit` / `factor`
     """
+    if old_unit.strip().lower() in ['sec', 'sec.']: old_unit = 's'
+    if new_unit.strip().lower() in ['sec', 'sec.']: new_unit = 's'
     old_unit_set = set(old_unit)
     new_unit_set = set(new_unit)
     n_base_unit = len(old_unit_set.intersection(new_unit_set))

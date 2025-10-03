@@ -238,7 +238,11 @@ def read_geometry(
         geo[key] = dict(src=src, axis=axis)
     return geo
 
-def read_data_header(file: str, comment: str='#') -> dict:
+def read_data_header(
+    file: str,
+    comment: str='#',
+    use_postgres_names: bool=False
+) -> dict:
     """
     Read the header stored in a text data file when the header contains
     key-value pairs. Assumes key-value pairs separated by '='.
@@ -249,6 +253,9 @@ def read_data_header(file: str, comment: str='#') -> dict:
         Filepath for data file.
     comment : str, optional
         String that starts header lines in `file`. Default is '#'.
+    use_postgres_names : bool, optional
+        If `True`, converts all index and column labels to lower snake
+        case. Default is `False`.
 
     Returns
     -------
@@ -269,6 +276,8 @@ def read_data_header(file: str, comment: str='#') -> dict:
                 line = line[1:].strip().replace("'", '').split('=')
                 line = [elem.strip() for elem in line]
                 key = line[0]
+                if use_postgres_names:
+                    key = key.lower().replace('-', '_').replace(' ', '_')
                 vals = value_from_string(line[1])
                 header[key] = vals
     return header
@@ -366,14 +375,18 @@ def read_data_basic(
         Pandas dataframe containing the data with headers.
     """
     
-    header = read_data_header(file)
-    dim_names = header['DimName']
-    dim_units = header['DimUnit']
+    header = read_data_header(file, use_postgres_names=use_postgres_names)
+    dim_name_key = [key for key in header if key.lower() == 'dimname'][0]
+    dim_unit_key = [key for key in header if key.lower() == 'dimunit'][0]
+    val_name_key = [key for key in header if key.lower() == 'valname'][0]
+    val_unit_key = [key for key in header if key.lower() == 'valunit'][0]
+    dim_names = header[dim_name_key]
+    dim_units = header[dim_unit_key]
     if isinstance(dim_names, str):
         dim_names = [dim_names]
         dim_units = [dim_units]
-    val_names = header['ValName']
-    val_units = header['ValUnit']
+    val_names = header[val_name_key]
+    val_units = header[val_unit_key]
 
     n_dims = len(dim_names)
     usecols = [i for i in range(n_dims)] + \
