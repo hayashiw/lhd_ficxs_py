@@ -333,9 +333,13 @@ def read_data_from_dat(
         column_names = [
             name.lower().replace('-', '_').replace(' ', '_') for
             name in column_names]
+    if isinstance(index_names,  str): index_names  = [index_names]
+    if isinstance(column_names, str): column_names = [column_names]
+    if isinstance(index_units,  str): index_units  = [index_units]
+    if isinstance(column_units, str): column_units = [column_units]
     names = index_names + column_names
     units = index_units + column_units
-    if usecols:
+    if usecols is not None:
         names = (np.array(names)[usecols]).tolist()
         units = (np.array(units)[usecols]).tolist()
     units_dict = {name:unit for name, unit in zip(names, units)}
@@ -473,6 +477,71 @@ def read_nbists_from_files(
         ists_ser_list.append(ists_ser_single)
     ists_ser = pd.concat(ists_ser_list, axis=1).max(1)
     return ists_ser
+
+def read_nbi_from_config(
+    shot: int,
+    select_param: str='all',
+    config: dict=None
+) -> pd.DataFrame:
+    """
+    Read NBI data from .dat files, use `key` to read in a specific parameter.
+
+    Parameters
+    ----------
+    shot : int
+        Shot number.
+    select_param : {'all', 'pinj', 'einj', 'ists'}, optional
+        NBI parameter to read. Default is 'all'.
+    config: dict, optional
+        Dictionary containing program configuration.
+
+    Returns
+    -------
+    nbi_df : pd.DataFrame
+        DataFrame containing NBI data.
+    """
+    if config is None: config = read_config()
+    data_dir = config['data_dir']
+
+    all_params = select_param == 'all'
+    pinj_param = select_param == 'pinj'
+    einj_param = select_param == 'einj'
+    ists_param = select_param == 'ists'
+    data_keys = {
+        'pinj':'pport_through_{key}',
+        'einj':'ebeam_{key}',
+        'ists':'ion_sts{port}_{key}' }
+
+    nbi_species_dict = {}
+    nbi_df_list = []
+    for ifile, (key, patt) in enumerate(config['nbi_patts'].items()):
+        file = data_dir + '/' + patt.format(shot=shot)
+        nbi_data = read_data_basic(
+            file, use_postgres_names=True, convert_to_ms=True)
+
+        if all_params or pinj_param:
+            data_ser = nbi_data[data_keys['pinj'].format(key=key)]
+            data_ser.name = f'pinj_{key}' if all_params else key
+            nbi_df_list.append(data_ser)
+        if all_params or einj_param:
+            data_ser = nbi_data[data_keys['einj'].format(key=key)]
+            data_ser.name = f'einj_{key}' if all_params else key
+            nbi_df_list.append(data_ser)
+        if all_params or ists_param:
+            ports = ['a', 'b'] if key in ['nb1', 'nb2', 'nb3'] else ['u', 'l']
+            for port in ports:
+                name = key+port if ifile < 3 else key[:-1]+port+key[-1]
+                data_ser = nbi_data[
+                    data_keys['ists'].format(port=port, key=key)
+                ].astype(int)
+                data_ser.name = f'ists_{name}' if all_params else name
+                nbi_df_list.append(data_ser)
+        isgas_key = key if key in ['nb1', 'nb2', 'nb3'] else key[:-1]
+        isgas = nbi_data[f'isgas_{isgas_key}'].astype(int).unique()
+        nbi_species_dict[key] = isgas.tolist()
+    nbi_df = pd.concat(nbi_df_list, axis=1)
+    nbi_df.attrs['nbi_species'] = nbi_species_dict
+    return nbi_df
 
 def read_full_nbists_from_config(
     shot: int,
