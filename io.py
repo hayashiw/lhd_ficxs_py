@@ -386,11 +386,14 @@ def read_data_basic(
     val_unit_key = [key for key in header if key.lower() == 'valunit'][0]
     dim_names = header[dim_name_key]
     dim_units = header[dim_unit_key]
+    val_names = header[val_name_key]
+    val_units = header[val_unit_key]
     if isinstance(dim_names, str):
         dim_names = [dim_names]
         dim_units = [dim_units]
-    val_names = header[val_name_key]
-    val_units = header[val_unit_key]
+    if isinstance(val_names, str):
+        val_names = [val_names]
+        val_units = [val_units]
 
     n_dims = len(dim_names)
     usecols = [i for i in range(n_dims)] + \
