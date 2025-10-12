@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API Reference" href="api/modules.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.09.10 -->
         <title>LHD-FICXS-py 0.1 documentation</title>
@@ -154,7 +154,22 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/modules.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/lhd_fidasim.html">lhd_fidasim</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of lhd_fidasim</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.Goldston.html">lhd_fidasim: Goldston</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.distribution.html">lhd_fidasim: distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.equilibrium.html">lhd_fidasim: equilibrium</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.geometry.html">lhd_fidasim: geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.inputs.html">lhd_fidasim: inputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.plot_nbi_geo.html">lhd_fidasim: plot_nbi_geo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
 </div>
 </div>
 
@@ -194,11 +209,11 @@
 <p>This repository is primarily concerned with analysis of data from the fast-ion charge-exchange spectroscopy (FICXS) system on the Large Helical Device (LHD).</p>
 <section id="installation-linux">
 <h3>Installation (Linux)<a class="headerlink" href="#installation-linux" title="Permalink to this heading">#</a></h3>
-<dl class="simple">
-<dt>To use the package, simply clone the repository from github and append the directory path to the pythonpath. ::</dt><dd><p>git clone <a class="reference external" href="https://github.com/hayashiw/lhd_ficxs_py.git">https://github.com/hayashiw/lhd_ficxs_py.git</a>
-export PYTHONPATH=”${PYTHONPATH}:$(pwd)/lhd_ficxs_py”</p>
-</dd>
-</dl>
+<p>To use the package, simply clone the repository from github and append the directory path to the pythonpath.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">hayashiw</span><span class="o">/</span><span class="n">lhd_ficxs_py</span><span class="o">.</span><span class="n">git</span>
+<span class="n">export</span> <span class="n">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;$</span><span class="si">{PYTHONPATH}</span><span class="s2">:$(pwd)/lhd_ficxs_py&quot;</span>
+</pre></div>
+</div>
 </section>
 <section id="configuring-directory-paths">
 <h3>Configuring directory paths<a class="headerlink" href="#configuring-directory-paths" title="Permalink to this heading">#</a></h3>
@@ -210,21 +225,88 @@ Make sure the <code class="docutils literal notranslate"><span class="pre">data_
 <span class="n">pqt_dir</span> <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">parquet</span><span class="o">/</span><span class="n">data</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">toctree</span><span class="p">::</span>
+<p>For information on the use of parquet files see <span class="xref std std-ref">Handling FICXS data files</span>.</p>
+</section>
+<section id="reading-in-data">
+<h3>Reading in data<a class="headerlink" href="#reading-in-data" title="Permalink to this heading">#</a></h3>
+<p>LHD data is typically stored in comma-separated ASCII files with the .dat extension.
+Most .dat files can be read in using the <code class="docutils literal notranslate"><span class="pre">read_data</span></code> subroutine.
+This will return the data as a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> object.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">lhd_ficxs_py</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_data</span>
+
+<span class="n">dat_file</span> <span class="o">=</span> <span class="s1">&#39;./nb1pwr_temporal.dat&#39;</span>
+<span class="n">nb1_df</span> <span class="o">=</span> <span class="n">read_data</span><span class="p">(</span><span class="n">dat_file</span><span class="p">,</span> <span class="n">use_postgres_names</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">convert_to_ms</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># use_postgres_names converts column names to lower-snake-case format</span>
+<span class="c1"># convert_to_ms converts the time column to milliseconds</span>
+<span class="n">pinj</span> <span class="o">=</span> <span class="n">nb1_df</span><span class="p">[</span><span class="s1">&#39;pport_through_nb1&#39;</span><span class="p">]</span>
+<span class="n">pinj_units</span> <span class="o">=</span> <span class="n">nb1_df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="c1"># MW</span>
 </pre></div>
 </div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">_handling</span><span class="o">-</span><span class="n">ficxs</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">files</span>
+</pre></div>
+</div>
+</section>
+<section id="handling-ficxs-data-files">
+<h3>Handling FICXS data files<a class="headerlink" href="#handling-ficxs-data-files" title="Permalink to this heading">#</a></h3>
+<p>Calibrated FICXS data is written to .dat files, the standard file type for LHD data.
+Due to the size of these files, file IO becomes a bottleneck when analyzing multiple cases.
+It is helpful to compress FICXS .dat files into parquet files.
+This can be easily done using the <code class="docutils literal notranslate"><span class="pre">lhd_ficxs_py.io.convert_dat_to_pqt</span></code> subroutine.
+They can then be quickly read in using <code class="docutils literal notranslate"><span class="pre">pandas.read_parquet</span></code>.
+An additional subroutine <code class="docutils literal notranslate"><span class="pre">lhd_ficxs_py.io.read_ficxs_from_pqt</span></code> is available to format FICXS dataframes into the expected format for <code class="docutils literal notranslate"><span class="pre">lhd_ficxs_py</span></code>.</p>
+</section>
+<section id="calculating-timing-for-active-ficxs-signal">
+<h3>Calculating timing for active FICXS signal<a class="headerlink" href="#calculating-timing-for-active-ficxs-signal" title="Permalink to this heading">#</a></h3>
+<p>The main purpose of this package is to generate the diagnostic-beam-on and -off time stamps for the FICXS system.
+This can be done using <code class="docutils literal notranslate"><span class="pre">lhd_ficxs_py.run</span></code> from the command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">lhd_ficxs_py_env</span><span class="p">):</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">lhd_ficxs_py</span><span class="o">.</span><span class="n">run</span> <span class="p">{</span><span class="n">shot_num</span><span class="p">}</span> <span class="p">{</span><span class="n">los</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The first argument <code class="docutils literal notranslate"><span class="pre">{shot_num}</span></code> should be replaced with the LHD discharge number.
+This is used to set the paths for the input data files, namely the NBI .dat files, ECH .dat file, and FICXS parquet file.
+These files have to be retrieved by the user before lhd_ficxs_py can be used.
+The second argument <code class="docutils literal notranslate"><span class="pre">{los}</span></code> is an integer (6 or 7) that refers to the FICXS sightline (line-of-sight or LOS).
+There are two LOS for the LHD FICXS system: 6-O and 7-O.
+Details about the two sightlines can be found in <a class="footnote-reference brackets" href="#id3" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, <a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+</section>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading">#</a></h2>
+<p>This package was written using the following:
+- python 3.13.5</p>
 <blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd">maxdepth<span class="colon">:</span></dt>
-<dd class="field-odd"><p>2</p>
-</dd>
-<dt class="field-even">caption<span class="colon">:</span></dt>
-<dd class="field-even"><p>Contents:</p>
-</dd>
-</dl>
-<p>api/modules</p>
+<div><ul class="simple">
+<li><p>h5py 3.14.0</p></li>
+<li><p>matplotlib 3.10.6</p></li>
+<li><p>netCDF4 1.7.2</p></li>
+<li><p>numpy 2.3.3</p></li>
+<li><p>pandas 2.3.3</p></li>
+<li><p>pyarrow 21.0.0</p></li>
+<li><p>scipy 1.16.2</p></li>
+</ul>
 </div></blockquote>
 </section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this heading">#</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id3" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Fujiwara, Y., Kamio, S., Yamaguchi, H., Garcia, A.V., Stagner, L., Nuga, H., Seki, R., Ogawa, K., Isobe, M., Yokoyama, M., Fast-ion D alpha diagnostic with 3D-supporting FIDASIM in the Large Helical Device <em>Nuclear Fusion</em> <strong>60</strong> (2020) 112014 doi:<a class="reference external" href="https://doi.org/10.1088/1741-4326/abae84">10.1088/1741-4326/abae84</a>.</p>
+</aside>
+<aside class="footnote brackets" id="id4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Hayashi, W.H.J., Heidbrink, W.W., Muscatello, C.M., Lin, D.J., Osakabe, M., Ogawa, K., Kawamoto, Y., Yamaguchi, H., Seki, R., Nuga, H., Charge-exchange measurements of high-energy fast ions in LHD using negative-ion neutral beam injection <em>Journal of Instrumentation</em> <strong>19</strong> (2024) P12006 doi:<a class="reference external" href="https://doi.org/10.1088/1748-0221/19/12/P12006">10.1088/1748-0221/19/12/P12006</a>.</p>
+</aside>
+</aside>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/lhd_fidasim.html">lhd_fidasim</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </section>
 </section>
 
@@ -233,7 +315,15 @@ Make sure the <code class="docutils literal notranslate"><span class="pre">data_
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="api/modules.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">API Reference</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
           
         </div>
         <div class="bottom-of-page">
@@ -269,8 +359,13 @@ Make sure the <code class="docutils literal notranslate"><span class="pre">data_
 <li><a class="reference internal" href="#python-tools-to-analyze-fast-ion-data-from-the-large-helical-device">Python tools to analyze fast ion data from the Large Helical Device.</a><ul>
 <li><a class="reference internal" href="#installation-linux">Installation (Linux)</a></li>
 <li><a class="reference internal" href="#configuring-directory-paths">Configuring directory paths</a></li>
+<li><a class="reference internal" href="#reading-in-data">Reading in data</a></li>
+<li><a class="reference internal" href="#handling-ficxs-data-files">Handling FICXS data files</a></li>
+<li><a class="reference internal" href="#calculating-timing-for-active-ficxs-signal">Calculating timing for active FICXS signal</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 </ul>
