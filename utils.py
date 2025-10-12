@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 
 MU = '\u03BC'
 METRIC_CONVERSION_FACTORS = {
@@ -15,7 +16,7 @@ AVAILABLE_HEAT_KEYS = [
 ]
 
 def value_from_string(string: str) -> str:
-    """
+    r"""
     Convert string to int, float, or retain string.
 
     Parameters
@@ -41,7 +42,7 @@ def value_from_string(string: str) -> str:
                 return string
                 
 def error(string: str, stop: bool=False) -> None:
-    """
+    r"""
     Print ANSI escape code formatted error string.
 
     Parameters
@@ -62,7 +63,7 @@ def error(string: str, stop: bool=False) -> None:
         print(f'\033[0;31m{string}\033[0m')
 
 def warn(string: str) -> None:
-    """
+    r"""
     Print ANSI escape code formatted warning string.
 
     Parameters
@@ -77,7 +78,7 @@ def warn(string: str) -> None:
     print(f'\033[0;33m{string}\033[0m')
 
 def success(string: str) -> None:
-    """
+    r"""
     Print ANSI escape code formatted success string.
 
     Parameters
@@ -92,7 +93,7 @@ def success(string: str) -> None:
     print(f'\033[0;32m{string}\033[0m')
 
 def conversion_factor(old_unit: str, new_unit: str) -> float:
-    """
+    r"""
     Return metric conversion factor to convert `old_unit` to `new_unit`.
 
     Parameters
@@ -125,14 +126,14 @@ def conversion_factor(old_unit: str, new_unit: str) -> float:
     new_power = METRIC_CONVERSION_FACTORS[new_prefix]
     return 10 ** (old_power - new_power)
 
-def check_increasing_index(sequence: list):
-    """
+def check_increasing_index(sequence: npt.ArrayLike) -> bool:
+    r"""
     Check if sequence is increasing monotonically at a uniform rate.
 
     Parameters
     ----------
-    sequence : list, array-like
-        1-D sequence of values
+    sequence : array-like of shape (n,)
+        1-D sequence of values.
 
     Returns
     -------
@@ -147,7 +148,7 @@ def check_increasing_index(sequence: list):
     return increasing_monotonically and one_unique_diff
 
 def heat_keys_to_heat_index(heat_keys: list) -> int:
-    """
+    r"""
     Convert list of NBI and ECH "on" keys to binary label
 
     Parameters
@@ -175,7 +176,7 @@ def heat_keys_to_heat_index(heat_keys: list) -> int:
     return int(index_binary_str, 2)
 
 def heat_index_to_heat_keys(heat_idx: int) -> list:
-    """
+    r"""
     Convert heat index binary label to list of NBI and ECH "on" keys
 
     Parameters

@@ -8,7 +8,7 @@ import pandas as pd
 from typing import Tuple
 
 from .io import (
-    read_data_basic, read_data_ech, read_nbists_from_files, read_config,
+    read_data_basic, read_nbists_from_files, read_config,
     read_fibermaps, read_fibermaps_log, write_fibermaps_log,
     read_ficxs_from_pqt, read_ficxs_timing, write_ficxs_timing,
     read_full_nbists_from_config )
@@ -30,7 +30,7 @@ def full_heat_idxs(
     data_dir = config['data_dir']
     if 'ech' not in ignore_keys:
         ech_file = data_dir + '/' + config['ech_patt'].format(shot=shot)
-        ech_data = read_data_ech(
+        ech_data = read_data_basic(
             ech_file, use_postgres_names=True, convert_to_ms=True)
         ists_ech = ech_data['total_ech']
         ists_ech = ists_ech.where(ists_ech == 0, 1).astype(int)
@@ -328,7 +328,7 @@ def plot_ficxs_cycle(
     pports = pd.concat(pports_list, axis=1)
 
     ech_file = data_dir + '/' + config['ech_patt'].format(shot=shot)
-    ech = read_data_ech(
+    ech = read_data_basic(
         ech_file, use_postgres_names=True, convert_to_ms=True
     )['total_ech']
 
@@ -526,7 +526,7 @@ def main(args):
         if png_file is None:
             png_file = os.path.abspath(
                 png_dir + '/' + \
-                png_patt.format(shot=shot, los=los, ch=ch, t_ms_idx=t_ms_idx) )
+                png_patt.format(shot=shot, los=los, ch=ch, time_ms=t_ms_idx) )
         fig.savefig(png_file, format='png', dpi=120)
 
     return 0        

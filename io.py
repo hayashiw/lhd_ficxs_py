@@ -3,6 +3,8 @@ import numpy as np
 import os
 import pandas as pd
 
+from typing import Tuple
+
 from .utils import conversion_factor, value_from_string, warn, error
 
 PACKAGE_DIR = os.path.dirname(__file__)
@@ -12,7 +14,7 @@ DEFAULT_FIBERMAPS_LOG_FILE = PACKAGE_DIR + '/fibermaps.log'
 DEFAULT_GEOMETRY_FILE = PACKAGE_DIR + '/geometry.ini'
 
 def read_config(config_file: str=None) -> dict:
-    """
+    r"""
     Read in configuration from config file.
 
     Parameters
@@ -30,22 +32,30 @@ def read_config(config_file: str=None) -> dict:
     config = {}
     config_obj = configparser.ConfigParser()
     config_obj.read(config_file)
-    for key in ['data_dir', 'pqt_dir']:
-        config[key] = os.path.abspath(config_obj['data_directories'][key])
+    for key, dir_path in config_obj['data_directories'].items():
+        config[key] = os.path.abspath(dir_path)
+
+    for key, path in config_obj['fidasim_settings'].items():
+        config[key] = os.path.abspath(path)
 
     config['nbi_patts'] = {
-        key:config_obj['data_file_patterns'][f'{key}_file']
-        for key in ['nb1', 'nb2', 'nb3', 'nb4a', 'nb4b', 'nb5a', 'nb5b']}
-
+        key.replace('_file', ''):patt for key, patt in
+        config_obj['nbi_file_patterns'].items()}
     config['nnbi_patts'] = {
         f'nb{i}':config['nbi_patts'][f'nb{i}'] for i in [1, 2, 3]}
     config['pnbi_patts'] = {
         f'nb{i}{j}':config['nbi_patts'][f'nb{i}{j}'] for
         i in [4, 5] for j in ['a', 'b']}
+    config['nnb_calib'] = {
+        key.replace('_file', ''):patt for key, patt in
+        config_obj['nnb_calib_patterns'].items()}
+    config['pnb_frac'] = {
+        key.replace('_file', ''):patt for key, patt in
+        config_obj['pnb_frac_patterns'].items()}
 
-    config['ech_patt'] = config_obj['data_file_patterns']['ech_file']
-    config['ficxs_pqt_patt'] = \
-        config_obj['data_file_patterns']['ficxs_pqt_file']
+    for section in ['data_file_patterns', 'vmec_file_patterns']:
+        for key, patt in config_obj[section].items():
+            config[key.replace('file', 'patt')] = patt
 
     for los in [6, 7]:
         config[f'{los}o_los_dnb_file_patterns'] = {
@@ -56,7 +66,6 @@ def read_config(config_file: str=None) -> dict:
         config_obj['save_file_settings']['save_dir'] )
     config['save_patt'] = config_obj['save_file_settings']['save_file']
 
-
     config['png_dir'] = os.path.abspath(
         config_obj['save_png_settings']['png_dir'] )
     config['png_patt'] = config_obj['save_png_settings']['png_file']
@@ -66,8 +75,8 @@ def read_config(config_file: str=None) -> dict:
 def read_fibermaps(
     fibermaps_file: str=None,
     fibermaps: list=None
-) -> pd.DataFrame:
-    """
+) -> pd.DataFrame[int, [Tuple(np.float64, np.int32), ...]]:
+    r"""
     Read in FICXS fiber configurations from fibermaps file. Default fibermaps
     file lists radial position in meters.
 
@@ -119,7 +128,7 @@ def read_fibermaps(
     return fibers
 
 def read_fibermaps_log(log_file: str=None) -> dict:
-    """
+    r"""
     Read shot_number:fibermap key-value pairs from log file.
 
     Parameters
@@ -153,7 +162,7 @@ def write_fibermaps_log(
     log_file: str=None,
     overwrite: bool=False
 ) -> None:
-    """
+    r"""
     Write fibermap configuration label to log file.
 
     Parameters
@@ -209,7 +218,7 @@ def read_geometry(
     geometry_label: str,
     geometry_file: str=None
 ) -> dict:
-    """
+    r"""
     Read in FICXS LOS geometry or FICXS DNB geometry from geometry file.
     Default geometry file lists source position in meters.
 
@@ -243,7 +252,7 @@ def read_data_header(
     comment: str='#',
     use_postgres_names: bool=False
 ) -> dict:
-    """
+    r"""
     Read the header stored in a text data file when the header contains
     key-value pairs. Assumes key-value pairs separated by '='.
 
@@ -293,7 +302,7 @@ def read_data_from_dat(
     convert_to_ms: bool=False,
     usecols: list=None
 ) -> pd.DataFrame:
-    """
+    r"""
     Read data from .dat file.
 
     Parameters
@@ -317,6 +326,8 @@ def read_data_from_dat(
     convert_to_ms : bool, optional
         If `True` and if 'time' is in `index_names`, converts 'time'
         index to integer-represented milliseconds. Default is `False`.
+    .. warning:: Setting `convert_to_ms` will downsample data that has
+        a sampling rate higher than 1 kHz.
     usecols : list, optional
         See pandas.read_csv for details.
 
@@ -346,10 +357,19 @@ def read_data_from_dat(
     data = pd.read_csv(
         file, comment=comment, names=names, usecols=usecols)
 
-    if convert_to_ms and 'time' in index_names:
-        factor = conversion_factor(units_dict['time'], 'ms')
-        data['time'] = round(data['time']*factor).astype(int)
-        units_dict['time'] = 'ms'
+    if convert_to_ms and 'time' in [name.lower() for name in index_names]:
+        t_key = [name for name in index_names if name.lower() == 'time'][0]
+        factor = conversion_factor(units_dict[t_key], 'ms')
+        full_time_ms = data[t_key]*factor
+        tmin_ms = np.ceil(full_time_ms).astype(int).min()
+        tmax_ms = np.floor(full_time_ms).astype(int).max()
+        time_ms = np.arange(tmin_ms, tmax_ms+1)
+        ms_idxs = [
+            idx for idx, t in enumerate(full_time_ms)
+            if round(t, 9) in time_ms]
+        data = data.iloc[ms_idxs]
+        data[t_key] = time_ms
+        units_dict[t_key] = 'ms'
     
     data.attrs['units'] = units_dict
     return data.set_index(index_names)
@@ -359,7 +379,7 @@ def read_data_basic(
     use_postgres_names: bool=False,
     convert_to_ms: bool=False
 ) -> pd.DataFrame:
-    """
+    r"""
     Read data from .dat file as a dataframe with headers.
 
     Parameters
@@ -372,6 +392,8 @@ def read_data_basic(
     convert_to_ms : bool, optional
         If `True` and if 'time' is in `index_names`, converts 'time'
         index to integer-represented milliseconds. Default is `False`.
+    .. warning:: Setting `convert_to_ms` will downsample data that has
+        a sampling rate higher than 1 kHz.
 
     Returns
     -------
@@ -408,47 +430,13 @@ def read_data_basic(
         convert_to_ms=convert_to_ms,
         usecols=usecols)
     return data
-    
-def read_data_ech(
-    ech_file: str,
-    use_postgres_names: bool=False,
-    convert_to_ms: bool=False
-) -> pd.DataFrame:
-    """
-    Read ECH data from .dat file as a dataframe with headers.
-
-    Parameters
-    ----------
-    file: str
-        Filepath for ECH .dat file.
-    use_postgres_names : bool, optional
-        If `True`, converts all index and column labels to lower snake
-        case. Default is `False`.
-    convert_to_ms : bool, optional
-        If `True` and if 'time' is in `index_names`, converts 'time'
-        index to integer-represented milliseconds. Default is `False`.
-
-    Returns
-    -------
-    data : pd.DataFrame
-        Pandas dataframe containing ECH data with headers.
-    """
-    ech_data = read_data_basic(
-        ech_file, use_postgres_names=use_postgres_names)
-
-    if convert_to_ms:
-        ech_data.index = (ech_data.index.values*1e3).round(1)
-        ech_data = ech_data.loc[
-            np.arange(ech_data.index.min(), ech_data.index.max()).round(0)]
-        ech_data.index = ech_data.index.astype(int)
-    return ech_data
 
 def read_nbists_from_files(
     files: list,
     use_postgres_names: bool=False,
     convert_to_ms: bool=False
 ) -> pd.Series:
-    """
+    r"""
     Read NBI on-off data from .dat files as a series.
 
     Parameters
@@ -461,6 +449,8 @@ def read_nbists_from_files(
     convert_to_ms : bool, optional
         If `True` and if 'time' is in `index_names`, converts 'time'
         index to integer-represented milliseconds. Default is `False`.
+    .. warning:: Setting `convert_to_ms` will downsample data that has
+        a sampling rate higher than 1 kHz.
 
     Returns
     -------
@@ -486,7 +476,7 @@ def read_nbi_from_config(
     select_param: str='all',
     config: dict=None
 ) -> pd.DataFrame:
-    """
+    r"""
     Read NBI data from .dat files, use `key` to read in a specific parameter.
 
     Parameters
@@ -495,7 +485,7 @@ def read_nbi_from_config(
         Shot number.
     select_param : {'all', 'pinj', 'einj', 'ists'}, optional
         NBI parameter to read. Default is 'all'.
-    config: dict, optional
+    config : dict, optional
         Dictionary containing program configuration.
 
     Returns
@@ -550,7 +540,7 @@ def read_full_nbists_from_config(
     shot: int,
     config: dict=None
 ) -> pd.DataFrame:
-    """
+    r"""
     Read in NBI on-off data for all beamlines and ports.
 
     Parameters
@@ -583,7 +573,7 @@ def read_full_nbists_from_config(
     return ists_df
 
 def read_ficxs_from_pqt(file: str, convert_to_ms: bool=False) -> pd.DataFrame:
-    """
+    r"""
     Read FICXS data from a parquet file.
     
     Parameters
@@ -593,6 +583,8 @@ def read_ficxs_from_pqt(file: str, convert_to_ms: bool=False) -> pd.DataFrame:
     convert_to_ms : bool, optional
         If `True` and if 'time' is in `index_names`, converts 'time'
         index to integer-represented milliseconds. Default is `False`.
+    .. warning:: Setting `convert_to_ms` will downsample data that has
+        a sampling rate higher than 1 kHz.
 
     Returns
     -------
@@ -623,7 +615,7 @@ def read_ficxs_from_pqt(file: str, convert_to_ms: bool=False) -> pd.DataFrame:
     return ficxs_pqt.T.sort_index().T.sort_index()
     
 def read_ficxs_timing(file: str) -> pd.Series:
-    """
+    r"""
     Read FICXS timing data from program-generated file.
 
     Parameters
@@ -641,7 +633,7 @@ def read_ficxs_timing(file: str) -> pd.Series:
     return ficxs_ts_ser
 
 def write_ficxs_timing(ficxs_ts_ser: pd.Series, file: str) -> None:
-    """
+    r"""
     Write FICXS timing data generate by lhd_ficxs_py.run to file.
 
     Parameters
@@ -668,7 +660,7 @@ def convert_dat_to_pqt(
     compression: str='brotli',
     engine: str='pyarrow'
 ) -> None:
-    """
+    r"""
     Convert a .dat file to a parquet file.
 
     Parameters
@@ -682,6 +674,8 @@ def convert_dat_to_pqt(
     convert_to_ms : bool, optional
         If `True` and if 'time' is in `index_names`, converts 'time'
         index to integer-represented milliseconds. Default is `False`.
+    .. warning:: Setting `convert_to_ms` will downsample data that has
+        a sampling rate higher than 1 kHz.
     compression : str, optional
         Input for pd.DataFrame.to_parquet. Default is 'brotli'.
     engine : str, optional

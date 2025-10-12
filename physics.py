@@ -1,4 +1,7 @@
 import numpy as np
+import numpy.typing as npt
+
+from typing import Tuple, Annotated
 
 ZEFF_0 = 3.0
 
@@ -13,72 +16,96 @@ EPS_NAUGHT_SI = 1/(MU_NAUGHT_SI*SPEED_OF_LIGHT**2) # C^2 J-1 m-1
 ELEMENTARY_CHARGE = 1.602176634e-19 # C 
 J_PER_EV = ELEMENTARY_CHARGE # J/eV
 
-DEUT_MASS_KG  = 3.3435837768e-27
-DEUT_MASS_G   = DEUT_MASS_KG * 1e3
-DEUT_MASS_MEV = DEUT_MASS_KG * SPEED_OF_LIGHT**2 / J_PER_EV / 1e6 # MeV [* c^2]
-DEUT_MASS_KEV = DEUT_MASS_MEV * 1000
-DEUT_MASS_EV  = DEUT_MASS_KEV * 1000
-
 HYDR_MASS_KG  = 1.6726219260e-27
-HYDR_MASS_G   = HYDR_MASS_KG * 1e3
-HYDR_MASS_MEV = HYDR_MASS_KG * SPEED_OF_LIGHT**2 / J_PER_EV / 1e6
-HYDR_MASS_KEV = HYDR_MASS_MEV * 1000
-HYDR_MASS_EV  = HYDR_MASS_KEV * 1000
 
-def convert_kinetic_energy_to_speed(
-    energy: float,
+def conv_kinetic_energy_to_speed(
+    energy: float | npt.NDArray,
     mass: float,
-) -> float:
-    """
-    Convert kinetic energy to speed. Assumes energy and mass are in compatible
-    units.
+) -> float | npt.NDArray:
+    r"""
+    Convert kinetic energy to speed. Uses SI units.
 
     Parameters
     ----------
-    energy : float
-        Energy in select units. Double check units are compatible with mass.
+    energy : float or np.ndarray of shape (n_energy,), dtype float64
+        Energy in Joules (J).
     mass : float
-        Mass in select_units. Double check units are compatible with energy.
+        Mass in kilograms (kg).
 
     Returns
     -------
-    speed : float
+    speed : float or np.ndarray of shape (n_energy,), dtype float64
         Speed calculated from particle kinetic energy.
-
-    Notes
-    -----
-    .. attention::
-        For SI units, energy should be in Joules and mass should be in
-        kilograms. The resultant speed is then in meters per second.
-        If energy is input in kiloelectronvolts and mass is input in
-        kiloelectronvolts per speed-of-light-squared then the output
-        speed is a percentage of the speed-of-light.
     """
-    speed = np.sqrt(2*energy/mass)
+    if mass == 0: return 0
+    if np.isscalar(energy):
+        if energy/mass < 0: return 0
+        speed = np.sqrt(2*energy/mass)
+    else:
+        speed = np.sqrt(
+            2*energy/mass, out=np.zeros_like(energy), where=energy >= 0)
     return speed
 
-def convert_kinetic_energy_to_Doppler_shift(
+def conv_speed_to_kinetic_energy(
+    speed: float | npt.NDArray,
+    mass: float
+) -> float | npt.NDArray:
+    r"""
+    Convert speed to kinetic energy in SI units.
+
+    Parameters
+    ----------
+    speed : float or np.ndarray of shape (n_energy,), dtype float64
+        Speed calculated from particle kinetic energy.
+    mass : float
+        Mass in kilograms (kg).
+
+    Returns
+    -------
+    energy : float or np.ndarray of shape (n_energy,), dtype float64
+        Energy in Joules (J).
+    """
+    return 0.5 * mass * speed**2
+
+def conv_speed_to_Doppler_shift(
+    speed: float,
+    unshifted_wavelength: float,
+    blue_shift: bool=False
+) -> float:
+    r"""
+    Convert speed to Doppler shifted wavelength. Uses SI units.
+    
+    Parameters
+    ----------
+    speed : float
+        Speed in meters per second (m/s)
+    unshifted_wavelength : float
+        Unshifted wavelength in nanometers (nm).
+    blue_shift : bool, optional
+        Set to `True` if source is moving toward detector.
+    """
+    Dopp_sign = 1 if blue_shift else -1
+    speed_to_c_ratio = speed / SPEED_OF_LIGHT
+    shifted_wavelength = unshifted_wavelength*(1 - Dopp_sign*speed_to_c_ratio)
+    return shifted_wavelength
+
+def conv_kinetic_energy_to_Doppler_shift(
     energy: float,
     mass: float,
     unshifted_wavelength: float,
     blue_shift: bool=False
 ) -> float:
-    """
-    Convert kinetic energy to Doppler shifted wavelength. Assumes
-    energy and mass are in SI units.
+    r"""
+    Convert kinetic energy to Doppler shifted wavelength. Uses SI units.
 
     Parameters
     ----------
     energy : float
-        Energy in Joules.
-    .. attention::
-        Pay attention to units. Energy should be in Joules.
+        Energy in Joules (J).
     mass : float
-        Mass in kilograms.
-    .. attention::
-        Pay attention to units. Mass should be in kilograms.
+        Mass in kilograms (kg).
     unshifted_wavelength : float
-        Unshifted wavelength in nanometers.
+        Unshifted wavelength in nanometers (nm).
     blue_shift : bool, optional
         Set to `True` if source is moving toward detector.
 
@@ -88,50 +115,47 @@ def convert_kinetic_energy_to_Doppler_shift(
         Doppler-shifted wavelength of emission from source in 
         nanometers.
     """
-    Dopp_sign = 1 if blue_shift else -1
-    speed = Dopp_sign * convert_kinetic_energy_to_speed(energy, mass)
-    speed_to_c_ratio = speed / SPEED_OF_LIGHT
-    shifted_wavelength = unshifted_wavelength * (1 - speed_to_c_ratio)
+    speed = conv_kinetic_energy_to_speed(energy, mass)
+    return conv_kinetic_energy_to_Doppler_shift(
+        speed, unshifted_wavelength, blue_shift=blue_shift)
 
-    return shifted_wavelength
-
-def calc_Debye_length(n_e: np.ndarray, T_e: np.ndarray) -> np.ndarray:
-    """
+def calc_Debye_length(
+    n_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
+    T_e: Annotated[npt.NDArray[np.float64], ('n_rho')]
+) -> Annotated[npt.NDArray[np.float64], ('n_rho')]:
+    r"""
     Calculate the Debye length according to thermal electron profiles.
 
     Parameters
     ----------
-    n_e : np.ndarray
-        1-D (n_rho,) thermal electron density profile in inverse cubic
-        centimeters (cm-3).
-    T_e : np.ndarray
-        1-D (n_rho,) thermal electron temperature profile in
-        kiloelectronvolts (keV).
+    n_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron density profile in inverse cubic centimeters
+        (cm-3).
+    T_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron temperature profile in kiloelectronvolts (keV).
 
     Returns
     -------
-    lambda_D : np.ndarray
-        1-D (n_rho,) profile of the Debye length in centimeters (cm).
+    lambda_D : np.ndarray of shape (n_rho,), dtype float64
+        Debye length due to electron profiles in centimeters (cm).
 
     Notes
     -----
     The calculation used here is for quasineutral ideal fusion plasmas 
     so only electrons are considered.
     """
-    n_e_SI = np.ndarray(n_e) * 1e6 # cm-3 -> m-3
-    n_rho = n_e_SI.size
-    T_e_SI = np.ndarray(T_e) * 1e3 * J_PER_EV # keV -> J
-    numerator = (EPS_NAUGHT_SI*T_e_SI)
-    denominator = n_e_SI * ELEMENTARY_CHARGE**2
+    n_e_SI = n_e * 1e6 # cm-3 -> m-3
+    T_e_SI = T_e * 1e3 * J_PER_EV # keV -> J
+    num = EPS_NAUGHT_SI*T_e_SI
+    den = n_e_SI * ELEMENTARY_CHARGE**2
     lambda_D_2 = np.divide(
-        numerator, denominator, out=np.full(n_rho, np.nan),
-        where=denominator!=0.0)
+        num, den, out=np.full_like(n_e, np.nan), where=den != 0.0)
     lambda_D = np.sqrt(
-        lambda_D_2, out=np.full(n_rho, np.nan),where=lambda_D_2 >= 0.0)
+        lambda_D_2, out=np.full_like(n_e, np.nan), where=lambda_D_2 >= 0.0)
     return lambda_D * 100 # m -> cm
 
 def calc_reduced_mass(m_1: float, m_2:float) -> float:
-    """
+    r"""
     Calculate the reduced mass of a two-particle system.
 
     Parameters
@@ -146,175 +170,229 @@ def calc_reduced_mass(m_1: float, m_2:float) -> float:
     m_r : float
         Reduced mass of the two-particle system.
     """
+    if m_1 + m_2 == 0: return 0
+
     return m_1 * m_2 / (m_1 + m_2)
 
-def calc_deBroglie_length(E_f: float, A_f: int, A_i: int) -> float:
-    """
+def calc_deBroglie_length(A_i: int, v_f: float, A_f: int) -> float:
+    r"""
     Calculate the deBroglie wavelength of a fast ion-thermal ion system.
     Assumes T_i << fast ion energy << speed of light.
 
     Parameters
     ----------
-    E_f : float
-        Fast ion energy in kiloelectronvolts (keV).
+    A_i : int
+        Atomic mass number for a thermal ion species.
+    v_f : float
+        Fast ion speed in centimeters per second (cm/s).
     A_f : int
         Fast ion atomic mass number.
-    A_i : int
-        Main ion species atomic mass number.
 
     Returns
     -------
     lambda_dB : float
         DeBroglie wavelength in centimeters (cm).
     """
-    E_f_SI = E_f * 1e3 * J_PER_EV # keV -> J
+    if (v_f == 0) or (A_f == 0) or (A_i == 0): return 0
+
+    v_f_SI = v_f * 1e2 # cm/s -> m/s
+    E_f = conv_speed_to_kinetic_energy(v_f_SI, A_f*HYDR_MASS_KG) # J
     A_avg = (A_f + A_i) / 2
-    m_f = A_f * HYDR_MASS_KG
-    lambda_dB = HBAR_SI * A_avg / np.sqrt(2 * m_f * E_f_SI) / A_i
+    m_f = A_f * HYDR_MASS_KG # kg
+    lambda_dB = HBAR_SI * A_avg / np.sqrt(2 * m_f * E_f) / A_i # m
     # m_r = calc_reduced_mass(A_f, A_i) * HYDR_MASS_KG
     # lambda_dB = HBAR_SI / np.sqrt(2 * m_r * E_f_SI)
     return lambda_dB * 100 # m -> cm
 
 def impact_parameter_perp(
-    E_f: float,
+    A_i: int,
+    Z_i: int,
+    v_f: float,
     A_f: int,
     Z_f: int,
-    A_i: int,
-    Z_i: int) -> float:
-    """
+) -> float:
+    r"""
     Calculate the perpendicular collision impact parameter of a fast ion
     and a thermal ion. Assumes T_i << fast ion energy << speed of light.
 
     Parameters
     ----------
-    E_f : float
-        Fast ion energy in kiloelectronvolts (keV).
+    A_i : int
+        Atomic mass number for a thermal ion species.
+    Z_i : int
+        Nuclear charge number for a thermal ion species.
+    v_f : float
+        Fast ion speed in centimeters per second (cm/s).
     A_f : int
         Fast ion atomic mass number.
     Z_f : int
         Fast ion nuclear charge number.
-    A_i : int
-        Main ion species atomic mass number.
-    Z_i : int
-        Main ion species nuclear charge number.
 
     Returns
     -------
     b_90 : float
         Perpendicular impact parameter in centimeters (cm).
     """
-    E_f_SI = E_f * 1e3 * J_PER_EV # keV -> J
-    v_f = convert_kinetic_energy_to_speed(E_f_SI, A_f*HYDR_MASS_KG)
-    m_r = calc_reduced_mass(A_f, A_i) * HYDR_MASS_KG
-    q_f = Z_f * ELEMENTARY_CHARGE
-    q_i = A_i * ELEMENTARY_CHARGE
-    b_90 = q_f * q_i / (4 * np.pi * EPS_NAUGHT_SI * m_r * v_f**2)
+    if (v_f == 0) or (A_f + A_i == 0): return 0
+
+    v_f_SI = v_f * 1e2 # cm/s -> m/s
+    m_r = calc_reduced_mass(A_f, A_i) * HYDR_MASS_KG # kg
+    q_f = Z_f * ELEMENTARY_CHARGE # C
+    q_i = Z_i * ELEMENTARY_CHARGE # C
+    b_90 = q_f * q_i / \
+        (4 * np.pi * EPS_NAUGHT_SI * m_r * v_f_SI**2) # m
     return b_90 * 100 # m -> cm
 
 def impact_parameter(
-    n_e: np.ndarray,
-    T_e: np.ndarray,
-    E_f: float,
-    A_f: int,
-    Z_f: int,
+    n_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
+    T_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
     A_i: int,
-    Z_i: int
-) -> tuple[float, np.ndarray]:
-    """
+    Z_i: int,
+    v_f: float,
+    A_f: int,
+    Z_f: int
+) -> Tuple[
+    float,
+    Annotated[npt.NDArray[np.float64], ('n_rho')]
+]:
+    r"""
     Calculate the impact parameter profile for fast ion-thermal ion
     collisions.
 
     Parameters
     ----------
-    n_e : np.ndarray
-        1-D (n_rho,) thermal electron density profile in inverse cubic
-        centimeters (cm-3).
-    T_e : np.ndarray
-        1-D (n_rho,) thermal electron temperature profile in
-        kiloelectronvolts (keV).
-    E_f : float
-        Fast ion energy in kiloelectronvolts (keV).
+    n_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron density profile in inverse cubic centimeters
+        (cm-3).
+    T_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron temperature profile in kiloelectronvolts (keV).
+    A_i : int
+        Atomic mass number for a thermal ion species.
+    Z_i : int
+        Nuclear charge number for a thermal ion species.
+    v_f : float
+        Fast ion speed in centimeters per second (cm/s).
     A_f : int
         Fast ion atomic mass number.
     Z_f : int
         Fast ion nuclear charge number.
-    A_i : int
-        Main ion species atomic mass number.
-    Z_i : int
-        Main ion species nuclear charge number.
 
     Returns
     -------
     b_min : float
         Minimum impact parameter in centimeters (cm).
-    b_max : np.ndarray
-        1-D (n_rho,) profile of the maximum impact parameter due to
-        electron profiles in centimeters (cm).
+    b_max : np.ndarray of shape (n_rho,), dtype float64
+        Maximum impact parameter due to electron profiles in centimeters
+        (cm).
     """
-    b_max = calc_Debye_length(n_e, T_e)
+    b_max = calc_Debye_length(n_e, T_e) # cm
+    lambda_dB = calc_deBroglie_length(A_i, v_f, A_f) # cm
+    b_90 = impact_parameter_perp(A_i, Z_i, v_f, A_f, Z_f) # cm
+    b_min = max(lambda_dB, b_90) # cm
+    return b_min, b_max # cm, cm
 
-    lambda_dB = calc_deBroglie_length(E_f, A_f, A_i)
-    b_90 = impact_parameter_perp(E_f, A_f, Z_f, A_i, Z_i)
-    b_min = max(lambda_dB, b_90)
-
-    return b_min, b_max
-
-def calc_Coulomb_ii(
-    n_e: np.ndarray,
-    T_e: np.ndarray,
-    E_f: float,
-    A_f: int,
-    Z_f: int,
+def _calc_Coulomb_ii(
+    n_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
+    T_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
     A_i: int,
-    Z_i: int
-) -> np.ndarray:
-    """
-    Calculate the fast ion-thermal ion Coulomb logarithm.
+    Z_i: int,
+    v_f: float,
+    A_f: int,
+    Z_f: int
+) -> Annotated[npt.NDArray[np.float64], ('n_rho')]:
+    r"""
+    Calculate the fast ion-thermal ion Coulomb logarithm for one thermal
+    ion species.
 
     Parameters
     ----------
-    n_e : np.ndarray
-        1-D (n_rho,) thermal electron density profile in inverse cubic
-        centimeters (cm-3).
-    T_e : np.ndarray
-        1-D (n_rho,) thermal electron temperature profile in
-        kiloelectronvolts (keV).
-    E_f : float
-        Fast ion energy in kiloelectronvolts (keV).
+    n_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron density profile in inverse cubic centimeters
+        (cm-3).
+    T_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron temperature profile in kiloelectronvolts (keV).
+    A_i : int
+        Atomic mass number for a thermal ion species.
+    Z_i : int
+        Nuclear charge number for a thermal ion species.
+    v_f : float
+        Fast ion speed in centimeters per second (cm/s).
     A_f : int
         Fast ion atomic mass number.
     Z_f : int
         Fast ion nuclear charge number.
-    A_i : int
-        Main ion species atomic mass number.
-    Z_i : int
-        Main ion species nuclear charge number.
 
     Returns
     -------
-    log_lambda_ii : np.ndarray
-        1-D (n_rho,) profile of the fast ion-thermal ion Coulomb
-        logarithm.
+    log_lambda_ii : np.ndarray of shape (n_rho,), dtype float64
+        Ion-ion Coulomb logarithm for fast ion collisions with a thermal
+        ion species.
     """
-    bmin, bmax = impact_parameter()
+    bmin, bmax = impact_parameter(n_e, T_e, A_i, Z_i, v_f, A_f, Z_f)
+    if bmin == 0: return 0
+    return np.log(
+        bmax / bmin, out=np.zeros_like(bmax), where=(bmax / bmin) > 0)
 
-def calc_Coulomb_ie(n_e: np.ndarray, T_e: np.ndarray) -> np.ndarray:
+def calc_Coulomb_ii(
+    n_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
+    T_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
+    A_i: Annotated[npt.NDArray[np.int32], ('n_rho')],
+    Z_i: Annotated[npt.NDArray[np.int32], ('n_rho')],
+    v_f: float,
+    A_f: int,
+    Z_f: int
+) -> Annotated[npt.NDArray[np.float64], ('n_rho')]:
+    r"""
+    Calculate the fast ion-thermal ion Coulomb logarithm for all thermal
+    ion species.
+
+    Parameters
+    ----------
+    n_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron density profile in inverse cubic centimeters
+        (cm-3).
+    T_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron temperature profile in kiloelectronvolts (keV).
+    A_i : np.ndarray of shape (n_species,), dtype int32
+        Atomic mass numbers for all thermal ion species.
+    Z_i : np.ndarray of shape (n_species,), dtype int32
+        Nuclear charge number for all thermal ion species.
+    v_f : float
+        Fast ion speed in centimeters per second (cm/s).
+    A_f : int
+        Fast ion atomic mass number.
+    Z_f : int
+        Fast ion nuclear charge number.
+
+    Returns
+    -------
+    log_lambda_ii : np.ndarray of shape (n_rho,), dtype float64
+        Ion-ion Coulomb logarithm for fast ion collisions with all
+        thermal ion species.
     """
+    return np.array([
+        _calc_Coulomb_ii(n_e, T_e, A, Z, v_f, A_f, Z_f)
+        for A, Z in zip(A_i, Z_i)])
+
+def calc_Coulomb_ie(
+    n_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
+    T_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
+) -> Annotated[npt.NDArray[np.float64], ('n_rho')]:
+    r"""
     Calculate the ion-electron Coulomb logarithm.
 
     Parameters
     ----------
-    n_e : np.ndarray
-        1-D (n_rho,) thermal electron density profile in inverse cubic
-        centimeters (cm-3).
-    T_e : np.ndarray
-        1-D (n_rho,) thermal electron temperature profile in
-        kiloelectronvolts (keV).
+    n_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron density profile in inverse cubic centimeters
+        (cm-3).
+    T_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron temperature profile in kiloelectronvolts (keV).
 
     Returns
     -------
-    log_lambda_ie : np.ndarray
-        1-D (n_rho,) profile of the ion-electron Coulomb logarithm.
+    log_lambda_ie : np.ndarray of shape (n_rho,), dtype float64
+        Ion-electron Coulomb logarithm.
     """
     n_e = np.array(n_e)
     n_rho = n_e.size
@@ -350,48 +428,39 @@ def calc_Coulomb_ie(n_e: np.ndarray, T_e: np.ndarray) -> np.ndarray:
     return log_lambda_ie
 
 def calc_critical_energy(
-    n_e: np.ndarray,
-    T_e: np.ndarray,
-    E_f: float,
+    n_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
+    T_e: Annotated[npt.NDArray[np.float64], ('n_rho')],
+    A_i: Annotated[npt.NDArray[np.int32], ('n_rho')],
+    Z_i: Annotated[npt.NDArray[np.int32], ('n_rho')],
+    v_f: float,
     A_f: int,
-    Z_f: int,
-    n_i: np.ndarray=None,
-    A_i: np.ndarray=None,
-    Z_i: np.ndarray=None,
-    Z_eff: np.ndarray=None
-) -> np.ndarray:
-    """
+    Z_f: int
+) -> Annotated[npt.NDArray[np.float64], ('n_rho')]:
+    r"""
     Calculate the critical energy of a fast ion due to thermal profiles.
 
     Parameters
     ----------
-    n_e : np.ndarray
-        1-D (n_rho,) thermal electron density profile in inverse cubic
-        centimeters (cm-3).
-    T_e : np.ndarray
-        1-D (n_rho,) thermal electron temperature profile in
-        kiloelectronvolts (keV).
-    E_f : float
-        Fast ion birth energy in kiloelectronvolts (keV).
+    n_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron density profile in inverse cubic centimeters
+        (cm-3).
+    T_e : np.ndarray of shape (n_rho,), dtype float64
+        Thermal electron temperature profile in kiloelectronvolts (keV).
+    A_i : np.ndarray of shape (n_species,), dtype int32
+        Atomic mass numbers for all thermal ion species.
+    Z_i : np.ndarray of shape (n_species,), dtype int32
+        Nuclear charge number for all thermal ion species.
+    v_f : float
+        Fast ion speed in centimeters per second (cm/s).
     A_f : int
         Fast ion atomic mass number.
     Z_f : int
         Fast ion nuclear charge number.
-    n_i : np.ndarray
-        2-D (n_species, n_rho) thermal ion density profiles including
-        minority and impurity species in inverse cubic centimeters
-        (cm-3).
-    A_i : array_like
-        1-D (n_species,) sequence of thermal ion mass numbers including
-        minority and impurity species.
-    Z_i : array_like
-        1-D (n_species,) sequence of thermal nuclear charge numbers
-        including minority and impurity species.
 
     Returns
     -------
-    E_c : np.ndarray
-        1-D (n_rho,) profile of the fast ion critical energy in
+    E_c : np.ndarray of shape (n_rho,), dtype float64
+        Fast ion critical energy due to thermal profiles in
         kiloelectronvolts (keV).
 
     Notes
@@ -400,30 +469,14 @@ def calc_critical_energy(
     ions. Above the critical energy, they mainly slow down on thermal
     electrons [1]_.
 
-    If thermal ion profiles are not input, the main ion and impurity
-    species are assumed to be deuterium and carbon with a uniform
-    Z_eff = 3 profile.
-
     References
     ----------
     .. [1] W. W. Heidbrink, G. J. Sadler, "The Behavior of Fast Ions in
         Tokamak Experiments," Nuclear Fusion, vol. 34 pp. 535-615, 1994.
     """
-    n_e = np.array(n_e)
-    T_e = np.array(T_e)
-    n_rho = n_e.size
-
-    if n_i is None:
-        if Z_eff is None: Z_eff = np.full(n_rho, ZEFF_0)
-        A_i = np.array([12, 1])
-        Z_i = np.array([ 6, 1])
-        A_mx = np.array([ [Z**2 for Z in Z_i], [Z for Z in Z_i] ])
-        b_vc = np.array([Z_eff * n_e, n_e])
-        n_i = np.linalg.solve(A_mx, b_vc)
-    else:
-        A_i = np.array(A_i)
-        Z_i = np.array(Z_i)
-        n_species = n_i.shape[0]
-        assert n_species == A_i.size and n_species == Z_i.size, (
-            f'Input ion parameters must match number of species '
-            f'{n_species = }, {A_i.size = }, {Z_i.size}.')
+    log_lambda_ie = calc_Coulomb_ie(n_e, T_e)
+    log_lambda_ii = calc_Coulomb_ii(n_e, T_e, A_i, Z_i, v_f, A_f, Z_f)
+    arg = np.divide(
+        log_lambda_ii.sum(0), n_e * log_lambda_ie, out=np.zeros_like(n_e),
+        where=(n_e*log_lambda_ie) != 0 )
+    return 14.8 * A_f * T_e * arg
