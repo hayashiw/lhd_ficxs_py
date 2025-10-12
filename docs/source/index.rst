@@ -13,6 +13,7 @@ This repository is primarily concerned with analysis of data from the fast-ion c
 Installation (Linux)
 ++++++++++++++++++++
 To use the package, simply clone the repository from github and append the directory path to the pythonpath. ::
+   
    git clone https://github.com/hayashiw/lhd_ficxs_py.git
    export PYTHONPATH="${PYTHONPATH}:$(pwd)/lhd_ficxs_py"
 ::
