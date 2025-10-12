@@ -22,7 +22,8 @@ For information on the use of parquet files see [Handling FICXS data files](#han
 
 ### Reading in data
 LHD data is typically stored in comma-separated ASCII files with the .dat extension.
-Most .dat files can be read in using the `read_data` subroutine. This will return the data as a `pandas.DataFrame` object.
+Most .dat files can be read in using the `read_data` subroutine.
+This will return the data as a `pandas.DataFrame` object.
 ```python
 from lhd_ficxs_py import read_data
 
