@@ -28,7 +28,7 @@ Make sure the ``data_dir`` and ``pqt_dir`` are correctly set to the directories 
    data_dir = /path/to/your/LHD/data
    pqt_dir = /path/to/your/parquet/data
 ::
-For information on the use of parquet files see :ref:`handling-ficxs-data-files`
+For information on the use of parquet files see :ref:`Handling FICXS data files <handling-ficxs-data-files>`
 
 Reading in data
 +++++++++++++++
