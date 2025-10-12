@@ -1,5 +1,5 @@
-app.lhd\_fidasim.inputs module
-==============================
+lhd_fidasim: inputs
+====================
 
 .. automodule:: app.lhd_fidasim.inputs
    :members:

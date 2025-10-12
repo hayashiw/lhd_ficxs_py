@@ -1,5 +1,5 @@
-app.nbi\_timing module
-======================
+nbi_timing
+==========
 
 .. automodule:: app.nbi_timing
    :members:

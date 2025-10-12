@@ -1,5 +1,5 @@
-app.physics module
-==================
+physics
+=======
 
 .. automodule:: app.physics
    :members:

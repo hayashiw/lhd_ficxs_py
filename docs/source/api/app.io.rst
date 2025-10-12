@@ -1,5 +1,5 @@
-app.io module
-=============
+io
+==
 
 .. automodule:: app.io
    :members:

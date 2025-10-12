@@ -1,5 +1,5 @@
-app.lhd\_fidasim package
-========================
+lhd_fidasim
+=============
 
 Submodules
 ----------
