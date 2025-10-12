@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API Reference" href="api/modules.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.09.10 -->
         <title>LHD-FICXS-py 0.1 documentation</title>
@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -154,22 +154,7 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="api/modules.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="api/lhd_fidasim.html">lhd_fidasim</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of lhd_fidasim</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.Goldston.html">lhd_fidasim: Goldston</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.distribution.html">lhd_fidasim: distribution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.equilibrium.html">lhd_fidasim: equilibrium</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.geometry.html">lhd_fidasim: geometry</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.inputs.html">lhd_fidasim: inputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/lhd_fidasim.plot_nbi_geo.html">lhd_fidasim: plot_nbi_geo</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
+  
 </div>
 </div>
 
@@ -196,7 +181,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -204,18 +189,43 @@
         <article role="main">
           <section id="lhd-ficxs-py-documentation">
 <h1>LHD-FICXS-py documentation<a class="headerlink" href="#lhd-ficxs-py-documentation" title="Permalink to this heading">#</a></h1>
-<p>Add your content using <code class="docutils literal notranslate"><span class="pre">reStructuredText</span></code> syntax. See the
-<a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html">reStructuredText</a>
-documentation for details.</p>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/lhd_fidasim.html">lhd_fidasim</a></li>
-</ul>
-</li>
-</ul>
+<section id="python-tools-to-analyze-fast-ion-data-from-the-large-helical-device">
+<h2>Python tools to analyze fast ion data from the Large Helical Device.<a class="headerlink" href="#python-tools-to-analyze-fast-ion-data-from-the-large-helical-device" title="Permalink to this heading">#</a></h2>
+<p>This repository is primarily concerned with analysis of data from the fast-ion charge-exchange spectroscopy (FICXS) system on the Large Helical Device (LHD).</p>
+<section id="installation-linux">
+<h3>Installation (Linux)<a class="headerlink" href="#installation-linux" title="Permalink to this heading">#</a></h3>
+<dl class="simple">
+<dt>To use the package, simply clone the repository from github and append the directory path to the pythonpath. ::</dt><dd><p>git clone <a class="reference external" href="https://github.com/hayashiw/lhd_ficxs_py.git">https://github.com/hayashiw/lhd_ficxs_py.git</a>
+export PYTHONPATH=”${PYTHONPATH}:$(pwd)/lhd_ficxs_py”</p>
+</dd>
+</dl>
+</section>
+<section id="configuring-directory-paths">
+<h3>Configuring directory paths<a class="headerlink" href="#configuring-directory-paths" title="Permalink to this heading">#</a></h3>
+<p>Included in the package is the <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> file.
+This files contains the relevant directory paths for your LHD data.
+Make sure the <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">pqt_dir</span></code> are correctly set to the directories that you will be using.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">data_directories</span><span class="p">]</span>
+<span class="n">data_dir</span> <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">LHD</span><span class="o">/</span><span class="n">data</span>
+<span class="n">pqt_dir</span> <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">parquet</span><span class="o">/</span><span class="n">data</span>
+</pre></div>
 </div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">toctree</span><span class="p">::</span>
+</pre></div>
+</div>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">maxdepth<span class="colon">:</span></dt>
+<dd class="field-odd"><p>2</p>
+</dd>
+<dt class="field-even">caption<span class="colon">:</span></dt>
+<dd class="field-even"><p>Contents:</p>
+</dd>
+</dl>
+<p>api/modules</p>
+</div></blockquote>
+</section>
+</section>
 </section>
 
         </article>
@@ -223,15 +233,7 @@ documentation for details.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="api/modules.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">API Reference</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
+          
           
         </div>
         <div class="bottom-of-page">
@@ -251,8 +253,31 @@ documentation for details.</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">LHD-FICXS-py documentation</a><ul>
+<li><a class="reference internal" href="#python-tools-to-analyze-fast-ion-data-from-the-large-helical-device">Python tools to analyze fast ion data from the Large Helical Device.</a><ul>
+<li><a class="reference internal" href="#installation-linux">Installation (Linux)</a></li>
+<li><a class="reference internal" href="#configuring-directory-paths">Configuring directory paths</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
