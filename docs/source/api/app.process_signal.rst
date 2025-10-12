@@ -1,5 +1,5 @@
-app.process\_signal module
-==========================
+process_signal
+==============
 
 .. automodule:: app.process_signal
    :members:

@@ -1,5 +1,5 @@
-app.lhd\_fidasim.equilibrium module
-===================================
+lhd_fidasim: equilibrium
+=========================
 
 .. automodule:: app.lhd_fidasim.equilibrium
    :members:

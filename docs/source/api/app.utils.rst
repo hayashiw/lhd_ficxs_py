@@ -1,5 +1,5 @@
-app.utils module
-================
+utils
+=====
 
 .. automodule:: app.utils
    :members:

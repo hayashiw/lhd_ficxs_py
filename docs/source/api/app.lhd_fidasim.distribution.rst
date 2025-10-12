@@ -1,5 +1,5 @@
-app.lhd\_fidasim.distribution module
-====================================
+lhd_fidasim: distribution
+==========================
 
 .. automodule:: app.lhd_fidasim.distribution
    :members:
