@@ -47,7 +47,7 @@ This will return the data as a ``pandas.DataFrame`` object. ::
    pinj_units = nb1_df.attrs['units'] # MW
 ::
 
-.. _handling-ficxs-data-files
+.. _handling-ficxs-data-files:
 Handling FICXS data files
 +++++++++++++++++++++++++
 Calibrated FICXS data is written to .dat files, the standard file type for LHD data.
