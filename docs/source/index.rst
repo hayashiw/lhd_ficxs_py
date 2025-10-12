@@ -28,7 +28,8 @@ Make sure the ``data_dir`` and ``pqt_dir`` are correctly set to the directories 
    data_dir = /path/to/your/LHD/data
    pqt_dir = /path/to/your/parquet/data
 ::
-For information on the use of parquet files see :ref:`Handling FICXS data files <handling-ficxs-data-files>`
+
+For information on the use of parquet files see :ref:`Handling FICXS data files <handling-ficxs-data-files>`.
 
 Reading in data
 +++++++++++++++
@@ -63,6 +64,7 @@ This can be done using ``lhd_ficxs_py.run`` from the command line: ::
 
    (lhd_ficxs_py_env): python -m lhd_ficxs_py.run {shot_num} {los}
 ::
+
 The first argument ``{shot_num}`` should be replaced with the LHD discharge number.
 This is used to set the paths for the input data files, namely the NBI .dat files, ECH .dat file, and FICXS parquet file. 
 These files have to be retrieved by the user before lhd_ficxs_py can be used.
