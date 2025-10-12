@@ -59,7 +59,9 @@ Details about the two sightlines can be found in [[1]](#1) [[2]](#2).
 ## Requirements
 This package was written using the following:
 - python 3.13.5
+    - h5py 3.14.0
     - matplotlib 3.10.6
+    - netCDF4 1.7.2
     - numpy 2.3.3
     - pandas 2.3.3
     - pyarrow 21.0.0

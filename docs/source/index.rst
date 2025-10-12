@@ -72,8 +72,20 @@ The second argument ``{los}`` is an integer (6 or 7) that refers to the FICXS si
 There are two LOS for the LHD FICXS system: 6-O and 7-O.
 Details about the two sightlines can be found in [1]_, [2]_.
 
+Requirements
+------------
+This package was written using the following:
+- python 3.13.5
+    - h5py 3.14.0
+    - matplotlib 3.10.6
+    - netCDF4 1.7.2
+    - numpy 2.3.3
+    - pandas 2.3.3
+    - pyarrow 21.0.0
+    - scipy 1.16.2
+
 References
-++++++++++
+----------
 .. [1] Fujiwara, Y., Kamio, S., Yamaguchi, H., Garcia, A.V., Stagner, L., Nuga, H., Seki, R., Ogawa, K., Isobe, M., Yokoyama, M., Fast-ion D alpha diagnostic with 3D-supporting FIDASIM in the Large Helical Device *Nuclear Fusion* **60** (2020) 112014 doi:`10.1088/1741-4326/abae84 <https://doi.org/10.1088/1741-4326/abae84>`_.
 .. [2] Hayashi, W.H.J., Heidbrink, W.W., Muscatello, C.M., Lin, D.J., Osakabe, M., Ogawa, K., Kawamoto, Y., Yamaguchi, H., Seki, R., Nuga, H., Charge-exchange measurements of high-energy fast ions in LHD using negative-ion neutral beam injection *Journal of Instrumentation* **19** (2024) P12006 doi:`10.1088/1748-0221/19/12/P12006 <https://doi.org/10.1088/1748-0221/19/12/P12006>`_.
 
