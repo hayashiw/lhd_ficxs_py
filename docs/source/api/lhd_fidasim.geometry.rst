@@ -1,7 +1,7 @@
-lhd_fidasim: Goldston
+lhd_fidasim: geometry
 ======================
 
-.. automodule:: app.lhd_fidasim.Goldston
+.. automodule:: lhd_fidasim.geometry
    :members:
    :show-inheritance:
    :undoc-members:

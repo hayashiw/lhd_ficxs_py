@@ -12,7 +12,9 @@ jobs:
       with:
         persist-credentials: false
     - name: Install dependencies
-      run: pip install -r docs/requirements.txt
+      run: |
+        pip install -r docs/requirements.txt
+        pip install .
     - name: Build HTML
       uses: ammaraskar/sphinx-action@master
     - name: Upload artifacts
