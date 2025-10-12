@@ -2,15 +2,15 @@
 readme = "README.md"
 requires-python = ">= 3.8"
 dependencies = [
-    "f90nml"
-    "h5py"
-    "matplotlib"
-    "netCDF4"
-    "numpy"
-    "numpydoc"
-    "pandas"
-    "pyarrow"
-    "scikit-image"
-    "scipy"
-    "sphinx"
+    "f90nml",
+    "h5py",
+    "matplotlib",
+    "netCDF4",
+    "numpy",
+    "numpydoc",
+    "pandas",
+    "pyarrow",
+    "scikit-image",
+    "scipy",
+    "sphinx",
 ]
