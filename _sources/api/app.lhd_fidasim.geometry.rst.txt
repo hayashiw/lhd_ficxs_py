@@ -1,5 +1,5 @@
-app.lhd\_fidasim.geometry module
-================================
+lhd_fidasim: geometry
+======================
 
 .. automodule:: app.lhd_fidasim.geometry
    :members:

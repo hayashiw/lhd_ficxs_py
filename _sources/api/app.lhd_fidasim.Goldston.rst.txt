@@ -1,5 +1,5 @@
-app.lhd\_fidasim.Goldston module
-================================
+lhd_fidasim: Goldston
+======================
 
 .. automodule:: app.lhd_fidasim.Goldston
    :members:

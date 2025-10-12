@@ -1,5 +1,5 @@
-app.lhd\_fidasim.plot\_nbi\_geo module
-======================================
+lhd_fidasim: plot_nbi_geo
+============================
 
 .. automodule:: app.lhd_fidasim.plot_nbi_geo
    :members:
