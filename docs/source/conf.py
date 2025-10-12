@@ -36,14 +36,4 @@ exclude_patterns = []
 html_theme = 'furo'
 html_static_path = ['_static']
 
-autodoc_mock_imports = [
-    "f90nml",
-    "h5py",
-    "matplotlib",
-    "netCDF4",
-    "numpy",
-    "pandas",
-    "pyarrow",
-    "scikit-image",
-    "scipy",
-]
+autodoc_mock_imports = []
