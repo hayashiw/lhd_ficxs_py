@@ -29,7 +29,7 @@ Make sure the ``data_dir`` and ``pqt_dir`` are correctly set to the directories 
    pqt_dir = /path/to/your/parquet/data
 ::
 
-For information on the use of parquet files see :ref:`Handling FICXS data files <handling-ficxs-data-files>`.
+.. For information on the use of parquet files see :ref:`Handling FICXS data files <handling-ficxs-data-files>`.
 
 Reading in data
 +++++++++++++++
@@ -47,7 +47,7 @@ This will return the data as a ``pandas.DataFrame`` object. ::
    pinj_units = nb1_df.attrs['units'] # MW
 ::
 
-.. _handling-ficxs-data-files:
+.. .. _handling-ficxs-data-files:
 Handling FICXS data files
 +++++++++++++++++++++++++
 Calibrated FICXS data is written to .dat files, the standard file type for LHD data.
