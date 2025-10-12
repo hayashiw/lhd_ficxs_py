@@ -7,7 +7,7 @@ lhdficxs_spec_file = FDIR + '/geometry_files/spec_geo_lhdficxs.txt'
 lhdficxs_map_file = FDIR + '/geometry_files/lhdficxs_to_fmap.txt'
 nbi_geo_file = FDIR + '/geometry_files/neutral_beam_geo.txt'
 
-def read_lhdficxs() -> npt.NDarray:
+def read_lhdficxs() -> npt.NDArray:
     r"""
     Read in the diagnostic sightline geometry for the LHD FICXS system.
 
@@ -79,7 +79,7 @@ def fmap_to_lhdficxs(fmap: str, fmap_ch: int) -> int:
     lhdficxs_ch = data[cond]['lhdficxs_ch'][0]
     return lhdficxs_ch
 
-def read_diag_geo() -> npt.NDarray:
+def read_diag_geo() -> npt.NDArray:
     r"""
     Read in the diagnostic newutral beam geometry for the LHD FICXS
     system.

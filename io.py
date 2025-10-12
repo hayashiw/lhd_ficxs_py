@@ -75,7 +75,7 @@ def read_config(config_file: str=None) -> dict:
 def read_fibermaps(
     fibermaps_file: str=None,
     fibermaps: list=None
-) -> pd.DataFrame[int, [Tuple(np.float64, np.int32), ...]]:
+) -> pd.DataFrame:
     r"""
     Read in FICXS fiber configurations from fibermaps file. Default fibermaps
     file lists radial position in meters.

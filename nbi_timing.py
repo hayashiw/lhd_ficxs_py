@@ -7,8 +7,8 @@ from .io import read_config
 from .utils import error, check_increasing_index, heat_keys_to_heat_index
 
 def calculate_nbi_on_cycles(
-    ists_ser: pd.Series[int, int]
-) -> pd.DataFrame[int, [int, int]]:
+    ists_ser: pd.Series
+) -> pd.DataFrame:
     r"""
     Calculate NBI on and off timestamps. Assumes index is time in ms.
 
@@ -62,7 +62,7 @@ def calculate_nbi_on_cycles(
     return data
 
 def is_modulated(
-    ists_ser: pd.Series[int, int],
+    ists_ser: pd.Series,
     n_cycles_min: int=3,
     err_ratio_max: float=0.2
 ) -> bool:
@@ -99,7 +99,7 @@ def is_modulated(
     return True
 
 def is_heating(
-    ists_ser: pd.Series[int, int],
+    ists_ser: pd.Series,
     t_span_min: float=300.0,
     t_on_ratio_min: float=0.4,
     n_cycles_min: int=3,
@@ -150,7 +150,7 @@ def is_heating(
         return True
 
 def diagnosed_hnb_keys(
-    ists_df: pd.DataFrame[int, [int, ...]],
+    ists_df: pd.DataFrame,
     dnb_overlap_min: float=0.5,
     t_span_min: float=300.0,
     t_on_ratio_min: float=0.4,
@@ -242,7 +242,7 @@ def identify_heat_idx_sections(
     t_on_ratio_min: float=0.4,
     n_cycles_min: int=3,
     err_ratio_max: float=0.2,
-) -> pd.DataFrame[int, [int, int, int]]:
+) -> pd.DataFrame:
     r"""
     Returns heating sections grouped by heating schemes (NBI and ECH).
 

@@ -8,7 +8,7 @@ from lhd_ficxs_py import read_data
 from lhd_ficxs_py.utils import error
 
 FDIR = os.path.dirname(__file__)
-INPUTS_CONFIG = 'inputs.ini'
+INPUTS_CONFIG = FDIR + '/inputs.ini'
 
 def read_bgrid_from_bgrids_file(
     dnb: int,
@@ -19,7 +19,8 @@ def read_bgrid_from_bgrids_file(
     dl: float=5.0,
     geo_dir: str=None
 ) -> dict:
-    """
+    r"""
+
     """
     bgrids = read_bgrids(geo_dir=geo_dir)
     bgrids = bgrids[bgrids['name'] == f'nb{dnb}{port}']
@@ -41,6 +42,9 @@ def read_bgrid_from_bgrids_file(
     return bgrid
 
 def read_inputs_from_ini() -> dict:
+    r"""
+    
+    """
     inputs_ini = {}
     config_obj = configparser.ConfigParser()
     config_obj.read(INPUTS_CONFIG)
@@ -66,9 +70,11 @@ def make_inputs(
     geo_dir: str=None,
     write_nml: bool=False
 ) -> None:
+    r"""
+
     """
-    """
-    from fidasim.preprocessing import check_inputs, write_namelist
+    if write_nml:
+        from fidasim.preprocessing import check_inputs, write_namelist
     out_dir = os.path.abspath(out_dir)
     if config is None: config = read_config()
 
