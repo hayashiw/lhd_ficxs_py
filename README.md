@@ -22,7 +22,8 @@ For information on the use of parquet files see [Handling FICXS data files](#han
 
 ### Reading in data
 LHD data is typically stored in comma-separated ASCII files with the .dat extension.
-Most .dat files can be read in using the `read_data` subroutine. This will return the data as a `pandas.DataFrame` object.
+Most .dat files can be read in using the `read_data` subroutine.
+This will return the data as a `pandas.DataFrame` object.
 ```python
 from lhd_ficxs_py import read_data
 
@@ -58,7 +59,9 @@ Details about the two sightlines can be found in [[1]](#1) [[2]](#2).
 ## Requirements
 This package was written using the following:
 - python 3.13.5
+    - h5py 3.14.0
     - matplotlib 3.10.6
+    - netCDF4 1.7.2
     - numpy 2.3.3
     - pandas 2.3.3
     - pyarrow 21.0.0
