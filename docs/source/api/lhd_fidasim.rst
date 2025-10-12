@@ -14,10 +14,10 @@ Submodules
    lhd_fidasim.inputs
    lhd_fidasim.plot_nbi_geo
 
-Module contents
----------------
+.. Module contents
+.. ---------------
 
-.. automodule:: lhd_fidasim
-   :members:
-   :show-inheritance:
-   :undoc-members:
+.. .. automodule:: lhd_fidasim
+..    :members:
+..    :show-inheritance:
+..    :undoc-members:
