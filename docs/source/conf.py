@@ -42,10 +42,8 @@ autodoc_mock_imports = [
     "matplotlib",
     "netCDF4",
     "numpy",
-    "numpydoc",
     "pandas",
     "pyarrow",
     "scikit-image",
     "scipy",
-    "sphinx",
 ]
